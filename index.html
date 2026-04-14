@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot UI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      display: flex;
+      height: 100vh;
+      background: #f5f7fb;
+    }
+
+    .sidebar {
+      width: 25%;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .chat-list div {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .chat-area {
+      width: 75%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 15px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .message {
+      max-width: 60%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+    }
+
+    .user {
+      background: #4a7cff;
+      color: white;
+      margin-left: auto;
+    }
+
+    .bot {
+      background: #e5e7eb;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 10px;
+      background: #fff;
+      border-top: 1px solid #ddd;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      background: #4a7cff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h3>Chats</h3>
+    <div class="chat-list">
+      <div>General Bot</div>
+      <div>Support Bot</div>
+      <div>FAQ Bot</div>
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div class="chat-header">Predefined Chatbot</div>
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const responses = {
+      "hi": "Hello! How can I help you?",
+      "hello": "Hi there!",
+      "how are you": "I'm just a bot, but I'm doing great!",
+      "what is your name": "I'm your predefined chatbot 🤖",
+      "bye": "Goodbye! Have a nice day!",
+      "default": "Sorry, I don't understand that yet."
+    };
+
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.toLowerCase();
+      if (!msg) return;
+
+      addMessage(msg, "user");
+
+      let reply = responses[msg] || responses["default"];
+
+      setTimeout(() => {
+        addMessage(reply, "bot");
+      }, 500);
+
+      input.value = "";
+    }
+
+    function addMessage(text, type) {
+      const messages = document.getElementById("messages");
+      const div = document.createElement("div");
+      div.className = `message ${type}`;
+      div.innerText = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>
