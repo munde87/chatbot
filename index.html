@@ -1,147 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chatbot UI</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      display: flex;
-      height: 100vh;
-      background: #f5f7fb;
-    }
+<meta charset="UTF-8">
+<title>SMASH Chat</title>
 
-    .sidebar {
-      width: 25%;
-      background: #fff;
-      border-right: 1px solid #ddd;
-      padding: 10px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  height: 100vh;
+  background: #0f172a;
+  color: #fff;
+}
 
-    .chat-list div {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-    }
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #020617;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
 
-    .chat-area {
-      width: 75%;
-      display: flex;
-      flex-direction: column;
-    }
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
-    .chat-header {
-      padding: 15px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      font-weight: bold;
-    }
+.chat-list div {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-    .messages {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-    }
+.chat-list div:hover {
+  background: #1e293b;
+}
 
-    .message {
-      max-width: 60%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 10px;
-    }
+.active {
+  background: #4f46e5 !important;
+}
 
-    .user {
-      background: #4a7cff;
-      color: white;
-      margin-left: auto;
-    }
+/* CHAT AREA */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-    .bot {
-      background: #e5e7eb;
-    }
+.chat-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #1e293b;
+  font-weight: bold;
+  background: #020617;
+}
 
-    .input-area {
-      display: flex;
-      padding: 10px;
-      background: #fff;
-      border-top: 1px solid #ddd;
-    }
+.messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
 
-    input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+/* MESSAGES */
+.message {
+  max-width: 65%;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 12px;
+  line-height: 1.4;
+}
 
-    button {
-      margin-left: 10px;
-      padding: 10px 15px;
-      border: none;
-      background: #4a7cff;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  </style>
+.user {
+  background: #4f46e5;
+  margin-left: auto;
+}
+
+.bot {
+  background: #1e293b;
+}
+
+/* INPUT */
+.input-area {
+  display: flex;
+  padding: 15px;
+  border-top: 1px solid #1e293b;
+  background: #020617;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: #1e293b;
+  color: white;
+}
+
+button {
+  margin-left: 10px;
+  padding: 12px 18px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #6366f1;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="sidebar">
-    <h3>Chats</h3>
-    <div class="chat-list">
-      <div>General Bot</div>
-      <div>Support Bot</div>
-      <div>FAQ Bot</div>
-    </div>
+<div class="sidebar">
+  <div class="logo">⚡ SMASH</div>
+
+  <div class="chat-list">
+    <div onclick="switchChat(this,'General Bot')" class="active">General</div>
+    <div onclick="switchChat(this,'Support Bot')">Support</div>
+    <div onclick="switchChat(this,'FAQ Bot')">FAQ</div>
   </div>
+</div>
 
-  <div class="chat-area">
-    <div class="chat-header">Predefined Chatbot</div>
-    <div class="messages" id="messages"></div>
+<div class="chat-area">
+  <div class="chat-header" id="chatTitle">General Bot</div>
 
-    <div class="input-area">
-      <input type="text" id="userInput" placeholder="Type a message...">
-      <button onclick="sendMessage()">Send</button>
-    </div>
+  <div class="messages" id="messages"></div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Ask anything..." onkeydown="handleKey(event)">
+    <button onclick="sendMessage()">Send</button>
   </div>
+</div>
 
-  <script>
-    const responses = {
-      "hi": "Hello! How can I help you?",
-      "hello": "Hi there!",
-      "how are you": "I'm just a bot, but I'm doing great!",
-      "what is your name": "I'm your predefined chatbot 🤖",
-      "bye": "Goodbye! Have a nice day!",
-      "default": "Sorry, I don't understand that yet."
-    };
+<script>
+let currentChat = "General Bot";
 
-    function sendMessage() {
-      const input = document.getElementById("userInput");
-      const msg = input.value.toLowerCase();
-      if (!msg) return;
+let chatHistory = {
+  "General Bot": [],
+  "Support Bot": [],
+  "FAQ Bot": []
+};
 
-      addMessage(msg, "user");
+function getResponse(msg) {
+  if (msg.includes("hi") || msg.includes("hello")) return "Hey 👋 Welcome to SMASH!";
+  if (msg.includes("help")) return "Tell me what you need help with.";
+  if (msg.includes("name")) return "I'm SMASH AI ⚡";
+  if (msg.includes("bye")) return "See you soon!";
+  return "Still learning... try something else.";
+}
 
-      let reply = responses[msg] || responses["default"];
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const msg = input.value.trim().toLowerCase();
+  if (!msg) return;
 
-      setTimeout(() => {
-        addMessage(reply, "bot");
-      }, 500);
+  addMessage(msg, "user");
+  chatHistory[currentChat].push({ text: msg, type: "user" });
 
-      input.value = "";
-    }
+  const reply = getResponse(msg);
 
-    function addMessage(text, type) {
-      const messages = document.getElementById("messages");
-      const div = document.createElement("div");
-      div.className = `message ${type}`;
-      div.innerText = text;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-    }
-  </script>
+  setTimeout(() => {
+    addMessage(reply, "bot");
+    chatHistory[currentChat].push({ text: reply, type: "bot" });
+  }, 300);
+
+  input.value = "";
+}
+
+function addMessage(text, type) {
+  const messages = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = `message ${type}`;
+  div.innerText = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function handleKey(e) {
+  if (e.key === "Enter") sendMessage();
+}
+
+function switchChat(el, chatName) {
+  currentChat = chatName;
+  document.getElementById("chatTitle").innerText = chatName;
+
+  document.querySelectorAll(".chat-list div").forEach(d => d.classList.remove("active"));
+  el.classList.add("active");
+
+  const messages = document.getElementById("messages");
+  messages.innerHTML = "";
+
+  chatHistory[chatName].forEach(msg => {
+    addMessage(msg.text, msg.type);
+  });
+}
+</script>
 
 </body>
 </html>
